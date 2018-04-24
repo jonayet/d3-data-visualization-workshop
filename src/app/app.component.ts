@@ -5,6 +5,16 @@ import { Observable } from 'rxjs/Observable';
 
 import { feRockStars, circles } from './Repository';
 
+/*
+  Examples
+  http://vizuly.io/product/halo/?demo=d3js
+  http://vizuly.io/product/corona/?demo=d3js
+  https://bl.ocks.org/mbostock/1123639
+  http://mbostock.github.io/d3/talk/20111116/force-collapsible.html
+  http://mbostock.github.io/d3/talk/20111018/collision.html
+  https://github.com/d3/d3/wiki/Gallery
+*/
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -59,8 +69,6 @@ export class AppComponent implements OnInit {
         .text((d) => d.properties.name);
 
     });
-
-
   }
 
   private createSvgNode(hostElement: any, backgroundColor: string) {
