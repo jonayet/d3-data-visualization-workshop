@@ -1,6 +1,6 @@
 import { Component, ViewChild, ElementRef, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { select, zoom, event, geoMercator, geoPath } from 'd3';
+import { select, zoom, event, geoMercator, geoPath, scaleLinear } from 'd3';
 import { Observable } from 'rxjs/Observable';
 
 import { feRockStars, circles } from './Repository';
@@ -12,6 +12,11 @@ import { feRockStars, circles } from './Repository';
 })
 export class AppComponent implements OnInit {
   @ViewChild('mapHost') hostElement: ElementRef;
+
+  colorScale = scaleLinear()
+  .domain([1, 30])
+  .clamp(true)
+  .range(['#fff', '#409A99']);
 
   constructor(private http: HttpClient) { }
 
@@ -29,13 +34,33 @@ export class AppComponent implements OnInit {
       .projection(projection);
 
     this.getGeoData().subscribe(geoData => {
-      svgNode.selectAll('path')
+      const nodes = svgNode.selectAll('path')
         .data(geoData.features)
         .enter()
-        .append('path')
+        .append('g');
+
+        nodes.append('path')
         .attr('d', path)
-        .style('stroke', 'black');
+        .style('stroke', 'black')
+        .style('stroke-width', '0.3px')
+        .style('fill', (d) => this.colorScale(d.properties.name.length))
+        .on('mouseover', function () {
+            select(this).style('fill', 'orange');
+        })
+        .on('mouseout', () => {
+          svgNode.selectAll('path')
+          .style('fill', (d) => this.colorScale(d.properties.name.length));
+        });
+
+        nodes.append('text')
+        .style('font-size', '10px')
+        .attr('transform', (d) => 'translate(' + projection(d.geometry.coordinates[0][0][0]) + ')')
+        .style('fill', 'black')
+        .text((d) => d.properties.name);
+
     });
+
+
   }
 
   private createSvgNode(hostElement: any, backgroundColor: string) {
