@@ -36,3 +36,9 @@ export const feRockStars = [
     country: 'BD'
   },
 ];
+
+export const circles = [
+  {x: 400, r: 40, label: 'Dev'},
+  {x: 600, r: 60, label: 'Product'},
+  {x: 880, r: 80, label: 'Project'}
+];

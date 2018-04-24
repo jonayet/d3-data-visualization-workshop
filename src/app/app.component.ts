@@ -1,7 +1,7 @@
 import { Component, ViewChild, ElementRef, OnInit } from '@angular/core';
 import { select, zoom, event, geoMercator, geoPath } from 'd3';
 
-import { feRockStars } from './Repository';
+import { feRockStars, circles } from './Repository';
 
 @Component({
   selector: 'app-root',
@@ -12,23 +12,29 @@ export class AppComponent implements OnInit {
   @ViewChild('mapHost') hostElement: ElementRef;
 
   ngOnInit() {
-    const htmlNode = this.createHtmlNode(this.hostElement.nativeElement);
-    // const svgNode = this.createSvgNode(this.hostElement.nativeElement, '#ccc');
+    const svgNode = this.createSvgNode(this.hostElement.nativeElement, '#ccc');
 
-    const nodes = htmlNode.selectAll('div')
-      .data(feRockStars);
+    svgNode.append('circle')
+      .attr('r', '50')
+      .attr('stroke', 'black')
+      .attr('transform', `translate(600,250)`)
+      .attr('fill', 'white');
 
-    nodes.enter()
-      .append('div')
-      .style('text-align', 'center')
-      .style('padding', '10px')
-      .text(d => d.name)
-      .append('div')
-      .text(d => d.country);
-  }
+    // const groups = svgNode.selectAll('circle')
+    //   .data(circles);
 
-  private createHtmlNode(hostElement: any) {
-    return select(hostElement);
+    // const groupElements = groups.enter()
+    //   .append('g')
+    //   .attr('transform', (d) => `translate(${d.x},250)`);
+
+    //   groupElements.append('circle')
+    //   .attr('r', (d) => d.r)
+    //   .attr('stroke', 'black')
+    //   .attr('fill', 'white');
+
+    //   groupElements.append('text')
+    //   .attr('dx', (d) => -20)
+    //   .text((d) => d.label);
   }
 
   private createSvgNode(hostElement: any, backgroundColor: string) {
