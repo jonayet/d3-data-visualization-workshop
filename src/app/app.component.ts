@@ -1,5 +1,7 @@
 import { Component, ViewChild, ElementRef, OnInit } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { select, zoom, event, geoMercator, geoPath } from 'd3';
+import { Observable } from 'rxjs/Observable';
 
 import { feRockStars, circles } from './Repository';
 
@@ -11,30 +13,29 @@ import { feRockStars, circles } from './Repository';
 export class AppComponent implements OnInit {
   @ViewChild('mapHost') hostElement: ElementRef;
 
+  constructor(private http: HttpClient) { }
+
   ngOnInit() {
     const svgNode = this.createSvgNode(this.hostElement.nativeElement, '#ccc');
 
-    svgNode.append('circle')
-      .attr('r', '50')
-      .attr('stroke', 'black')
-      .attr('transform', `translate(600,250)`)
-      .attr('fill', 'white');
+    const width = this.hostElement.nativeElement.offsetWidth;
+    const height = this.hostElement.nativeElement.offsetHeight;
+    const projection = geoMercator()
+      .center([13.42, 52.5])
+      .translate([width / 2, height / 2])
+      .scale([width / 0.025]);
 
-    // const groups = svgNode.selectAll('circle')
-    //   .data(circles);
+    const path = geoPath()
+      .projection(projection);
 
-    // const groupElements = groups.enter()
-    //   .append('g')
-    //   .attr('transform', (d) => `translate(${d.x},250)`);
-
-    //   groupElements.append('circle')
-    //   .attr('r', (d) => d.r)
-    //   .attr('stroke', 'black')
-    //   .attr('fill', 'white');
-
-    //   groupElements.append('text')
-    //   .attr('dx', (d) => -20)
-    //   .text((d) => d.label);
+    this.getGeoData().subscribe(geoData => {
+      svgNode.selectAll('path')
+        .data(geoData.features)
+        .enter()
+        .append('path')
+        .attr('d', path)
+        .style('stroke', 'black');
+    });
   }
 
   private createSvgNode(hostElement: any, backgroundColor: string) {
@@ -57,5 +58,9 @@ export class AppComponent implements OnInit {
     });
     host.call(zoomHandler);
     return rootNode;
+  }
+
+  private getGeoData(): Observable<any> {
+    return this.http.get<any>('/assets/berlin-geo.json');
   }
 }
